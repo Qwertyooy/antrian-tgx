@@ -1,0 +1,30 @@
+// Prisma schema for Antrian-TGX
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Menu {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Int      @default(0)
+  image     String?
+  available Boolean  @default(true)
+  createdAt DateTime @default(now())
+  queues    Queue[]
+}
+
+model Queue {
+  id         Int      @id @default(autoincrement())
+  number     Int
+  customer   String
+  menuId     Int
+  menu       Menu     @relation(fields: [menuId], references: [id])
+  status     String   @default("waiting")
+  createdAt  DateTime @default(now())
+}
