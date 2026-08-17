@@ -2,7 +2,9 @@
 export default defineEventHandler(async () => {
   return prisma.queue.findMany({
     where: { status: { in: ['waiting', 'cooking'] } },
-    include: { menu: true },
+    include: {
+      items: { include: { menu: true } }
+    },
     orderBy: { number: 'asc' }
   })
 })

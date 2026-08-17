@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
   return prisma.queue.update({
     where: { id: Number(id) },
     data: { status },
-    include: { menu: true }
+    include: {
+      items: { include: { menu: true } }
+    }
   })
 })

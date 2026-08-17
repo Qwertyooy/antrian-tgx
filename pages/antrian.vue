@@ -31,8 +31,11 @@
             {{ cooking?.number ?? '--' }}
           </div>
           <p class="text-sm text-slate-600 font-semibold bg-slate-50 py-2.5 px-4 rounded-xl border border-slate-100">
-            {{ cooking ? `${cooking.customer} — ${cooking.menu.name}` : 'Menunggu panggilan...' }}
+            {{ cooking ? cooking.customer : 'Menunggu panggilan...' }}
           </p>
+          <div v-if="cooking" class="mt-3 text-xs text-slate-500">
+            {{ cooking.items.map(i => `${i.menu.name}×${i.quantity}`).join(' • ') }}
+          </div>
         </div>
 
         <!-- Info Panel -->
@@ -63,23 +66,30 @@
           <span>Daftar Antrian Aktif</span>
           <span class="text-xs font-semibold text-slate-400">Auto-refresh</span>
         </h3>
-        <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
+        <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
           <div v-if="!queues.length" class="text-center py-8 text-slate-400 text-sm">Belum ada antrian hari ini.</div>
           <div v-for="q in queues" :key="q.id"
-               class="flex items-center gap-4 p-4 rounded-2xl border transition-all"
+               class="p-4 rounded-2xl border transition-all"
                :class="q.status === 'cooking' ? 'bg-amber-50 border-amber-200 ring-2 ring-amber-300' : 'bg-slate-50 border-slate-100'">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-lg"
-                 :class="q.status === 'cooking' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-600'">
-              {{ q.number }}
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-lg shrink-0"
+                   :class="q.status === 'cooking' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-600'">
+                {{ q.number }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm text-slate-800">{{ q.customer }}</p>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span v-for="(item, idx) in q.items" :key="idx"
+                        class="text-xs bg-white border border-slate-200 px-2 py-0.5 rounded-full text-slate-600">
+                    {{ item.menu.name }} ×{{ item.quantity }}
+                  </span>
+                </div>
+              </div>
+              <span class="text-xs font-bold px-3 py-1 rounded-full shrink-0"
+                    :class="q.status === 'cooking' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'">
+                {{ q.status === 'cooking' ? '🍳 Masak' : '⏳ Antri' }}
+              </span>
             </div>
-            <div class="flex-1">
-              <p class="font-bold text-sm text-slate-800">{{ q.customer }}</p>
-              <p class="text-xs text-slate-500">{{ q.menu.name }}</p>
-            </div>
-            <span class="text-xs font-bold px-3 py-1 rounded-full"
-                  :class="q.status === 'cooking' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'">
-              {{ q.status === 'cooking' ? '🍳 Masak' : '⏳ Antri' }}
-            </span>
           </div>
         </div>
       </div>
@@ -108,7 +118,6 @@ async function fetchQueues() {
 
 onMounted(() => {
   fetchQueues()
-  // Auto-refresh every 5 seconds
   setInterval(fetchQueues, 5000)
 })
 

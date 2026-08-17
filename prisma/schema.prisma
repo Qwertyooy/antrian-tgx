@@ -12,19 +12,28 @@ datasource db {
 model Menu {
   id        Int      @id @default(autoincrement())
   name      String
+  category  String   @default("Martabak") // "Martabak" | "Terang Bulan"
   price     Int      @default(0)
   image     String?
   available Boolean  @default(true)
   createdAt DateTime @default(now())
-  queues    Queue[]
+  items     QueueItem[]
 }
 
 model Queue {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   number     Int
   customer   String
-  menuId     Int
-  menu       Menu     @relation(fields: [menuId], references: [id])
-  status     String   @default("waiting")
-  createdAt  DateTime @default(now())
+  status     String      @default("waiting") // waiting | cooking | done
+  createdAt  DateTime    @default(now())
+  items      QueueItem[]
+}
+
+model QueueItem {
+  id       Int   @id @default(autoincrement())
+  queueId  Int
+  queue    Queue @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  menuId   Int
+  menu     Menu  @relation(fields: [menuId], references: [id])
+  quantity Int   @default(1)
 }
